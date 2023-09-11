@@ -11,6 +11,7 @@ public class MainManager : MonoBehaviour
     public Rigidbody Ball;
 
     public Text ScoreText;
+    public Text HighScoreText;
     public GameObject GameOverText;
     
     private bool m_Started = false;
@@ -18,6 +19,8 @@ public class MainManager : MonoBehaviour
     
     private bool m_GameOver = false;
 
+    private int m_bestScore = 0;
+    private string m_playerName;
     
     // Start is called before the first frame update
     void Start()
@@ -36,6 +39,9 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+
+        m_playerName = InfoExchange.Instance.PlayerName;
+        LoadHighScore();
     }
 
     private void Update()
@@ -54,7 +60,7 @@ public class MainManager : MonoBehaviour
             }
         }
         else if (m_GameOver)
-        {
+        {            
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
@@ -72,5 +78,29 @@ public class MainManager : MonoBehaviour
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+        ChangeBestScoreText();
+        SaveHighScore();
+    }
+
+    public void ChangeBestScoreText()
+    {
+        if (m_Points > InfoExchange.Instance.Score)
+        {
+            m_bestScore = m_Points;
+            HighScoreText.text = "Best Score : " + m_playerName + " : " + m_bestScore;
+        }
+    }
+
+    public void LoadHighScore()
+    {
+        InfoExchange.Instance.LoadScore();
+        HighScoreText.text = "Best Score : " + InfoExchange.Instance.PlayerName + " : " + InfoExchange.Instance.Score;
+    }
+    
+    public void SaveHighScore()
+    {
+        InfoExchange.Instance.PlayerName = m_playerName;
+        InfoExchange.Instance.Score = m_bestScore;
+        InfoExchange.Instance.SaveScore();
     }
 }
